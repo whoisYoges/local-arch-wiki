@@ -1,14 +1,53 @@
 #!/usr/bin/env bash
 
+# Dependencies: arch-wiki-docs, dmenu or rofi and a browser
+
 wikidir="/usr/share/doc/arch-wiki/html/en/"
 wikidocs="$(find ${wikidir} -iname "*.html")"
-menu="dmenu -l 10 -i -p"
-browser="librewolf"
+
+checkBrowser() {
+    xdgbrowsercheck="$(xdg-settings get default-web-browser)"
+    
+    if [ -n "$BROWSER" ]; then
+        browser="$BROWSER"
+    elif [ -n "$xdgbrowsercheck" ]; then
+        browser="$xdgbrowsercheck"
+        xdg-mime default "$browser" text/html
+        browser="xdg-open"
+    elif command -v sensible-browser; then
+        browser="sensible-browser"
+    elif command -v x-www-browser; then
+        browser="x-www-browser"
+    else
+        echo "Could not detect the web browser to use. Please Install one."
+        notify-send "NO browser detected." "Please Install one."
+        exit 1
+    fi
+}
+
+checkDependencies() {
+    if [ ! -d $wikidir ]; then
+        echo "Dependency error, please install arch-wiki-docs."
+        notify-send "Dependency error, please install arch-wiki-docs."
+        exit 1
+    fi
+
+    if type -P dmenu &>/dev/null; then
+        menu="dmenu -l 10 -p"
+    elif type -P rofi &>/dev/null; then
+        menu="rofi -dmenu -p"
+    else
+        echo "Dependency error, please install dmenu or rofi."
+        notify-send "Dependency error, please install dmenu or rofi."
+        exit 1
+    fi
+}
+
 main(){
     choice=$(printf '%s\n' "${wikidocs[@]}" | \
         cut -d '/' -f8- | \
         sed -e 's/_/ /g' -e 's/.html//g' | \
-        sort | ${menu} 'Search Wiki: ' "$@") || exit 1
+        sort | ${menu} 'Search Wiki (case-sensitive): ' "$@") || exit 1
 
     if [ "$choice" ]; then
         article=$(printf '%s\n' "${wikidir}${choice}.html" | sed 's/ /_/g')
@@ -17,4 +56,7 @@ main(){
         echo "Program terminated." && exit 0
     fi
 }
+
+checkBrowser
+checkDependencies
 main "$@"
