@@ -15,7 +15,7 @@ An offline version of [arch linux wiki](https://wiki.archlinux.org/) inspired fr
 ### Optional Dependencies
 
 - xdg-utils
-- notify-send
+- libnotify
 
 # Installation and Usage
 
@@ -31,7 +31,7 @@ yay -S local-arch-wiki
 2. Install [local-arch-wiki](local-arch-wiki) in your system.
 
 ```
-curl -O "https://raw.githubusercontent.com/whoisYoges/local-arch-wiki/master/local-arch-wiki"
+curl -LOS "https://raw.githubusercontent.com/whoisYoges/local-arch-wiki/master/local-arch-wiki"
 chmod +x local-arch-wiki
 sudo mv local-arch-wiki /usr/local/bin/
 ```

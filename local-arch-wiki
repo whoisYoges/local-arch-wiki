@@ -33,7 +33,11 @@ checkDependencies() {
     fi
 
     if type -P dmenu &>/dev/null; then
-        menu="dmenu -l 10 -p"
+        if echo menu | dmenu -i &>/dev/null; then
+            menu="dmenu -i -l 10 -p"
+        else
+            menu="dmenu -l 10 -p "
+        fi
     elif type -P rofi &>/dev/null; then
         menu="rofi -dmenu -p"
     else
@@ -47,7 +51,7 @@ main(){
     choice=$(printf '%s\n' "${wikidocs[@]}" | \
         cut -d '/' -f8- | \
         sed -e 's/_/ /g' -e 's/.html//g' | \
-        sort | ${menu} 'Search Wiki (case-sensitive): ' "$@") || exit 1
+        sort | ${menu} 'Search Wiki: ' "$@") || exit 1
 
     if [ "$choice" ]; then
         article=$(printf '%s\n' "${wikidir}${choice}.html" | sed 's/ /_/g')
