@@ -1,45 +1,13 @@
 #!/usr/bin/env bash
 
-# Determine the config directory
-if [ -n "$XDG_CONFIG_HOME" ]; then
-    config_file_dir="$XDG_CONFIG_HOME"/local-arch-wiki
-else
-    config_file_dir="$HOME"/.config/local-arch-wiki
-fi
-config_file=${config_file_dir}/config
-wikidir="/usr/share/doc/arch-wiki/html/en/"
-menu="tofi --prompt-text"
-browser="firefox"
+checkConfigVariable() {
+    local variable="$1"
 
-if [[ -f "$config_file" ]]; then
-    # shellcheck source=/dev/null
-    source "${config_file}"
-    echo "Config: Sourced user config. (${config_file})"
-else
-    mkdir -p "$config_file_dir"
-    touch "$config_file"
-
-    cat <<EOF > "$config_file"
-## Dependencies: arch-wiki-docs, a menu such as dmenu, rofi, tofi,... and a web browser.
-
-## This is the directory where arch wiki's offline html files from package arch-wiki-docs exists.
-## By default, english wiki page is selected. However other languages are available.
-## Check directory /usr/share/doc/arch-wiki/html/ for other languages and configure accordingly. 
-wikidir="/usr/share/doc/arch-wiki/html/en/"
-
-## Your favourite web browser to open wiki pages.
-browser="firefox"
-
-## Your menu of choice
-# menu="dmenu -i -l 10 -p" 
-# menu="dmenu -l 10 -p" #For dmenu with case-insensitive patch
-# menu="rofi -dmenu -p"
-menu="tofi --prompt-text"
-EOF
-    # shellcheck source=/dev/null
-    source "${config_file}"
-    echo "Config: Created and Sourced user config. (${config_file})"
-fi
+    if [ -z "${!variable}" ] || [[ "${!variable}" =~ ^[[:space:]]*$ ]]; then
+        echo "$variable is not defined or is configured to be empty in the config file."
+        notify-send "Error!" "Undefined or empty $variable in the config file."
+    fi
+}
 
 checkDependencies() {
     if [[ ! -d "$wikidir" ]]; then
@@ -77,6 +45,51 @@ main(){
         echo "Program terminated." && exit 0
     fi
 }
+
+# Determine the config directory
+if [ -n "$XDG_CONFIG_HOME" ]; then
+    config_file_dir="$XDG_CONFIG_HOME"/local-arch-wiki
+else
+    config_file_dir="$HOME"/.config/local-arch-wiki
+fi
+config_file=${config_file_dir}/config
+wikidir="/usr/share/doc/arch-wiki/html/en/" #Overridable in the config file.
+menu="tofi --prompt-text" #Overridable in the config file.
+browser="firefox" #Overridable in the config file.
+variables_to_check=("browser" "wikidir" "menu")
+
+if [[ -f "$config_file" ]]; then
+    # shellcheck source=/dev/null
+    source "${config_file}"
+    echo "Config: Sourced user config. (${config_file})"
+    for variable in "${variables_to_check[@]}"; do
+    checkConfigVariable "$variable"
+done
+else
+    mkdir -p "$config_file_dir"
+    touch "$config_file"
+
+    cat <<EOF > "$config_file"
+## Dependencies: arch-wiki-docs, a menu such as dmenu, rofi, tofi,... and a web browser.
+
+## This is the directory where arch wiki's offline html files from package arch-wiki-docs exists.
+## By default, english wiki page is selected. However other languages are available.
+## Check directory /usr/share/doc/arch-wiki/html/ for other languages and configure accordingly. 
+wikidir="/usr/share/doc/arch-wiki/html/en/"
+
+## Your favourite web browser to open wiki pages.
+browser="firefox"
+
+## Your menu of choice
+# menu="dmenu -i -l 10 -p" 
+# menu="dmenu -l 10 -p" #For dmenu with case-insensitive patch
+# menu="rofi -dmenu -p"
+menu="tofi --prompt-text"
+EOF
+    # shellcheck source=/dev/null
+    source "${config_file}"
+    echo "Config: Created and Sourced user config. (${config_file})"
+fi
 
 checkDependencies
 main "$@"
