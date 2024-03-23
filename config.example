@@ -1,0 +1,15 @@
+## Dependencies: arch-wiki-docs, a menu such as dmenu, rofi, tofi,... and a web browser.
+
+## This is the directory where arch wiki's offline html files from package arch-wiki-docs exists.
+## By default, english wiki page is selected. However other languages are available.
+## Check directory /usr/share/doc/arch-wiki/html/ for other languages and configure accordingly. 
+wikidir="/usr/share/doc/arch-wiki/html/en/"
+
+## Your favourite web browser to open wiki pages.
+browser="firefox"
+
+## Your menu of choice
+# menu="dmenu -i -l 10 -p" 
+# menu="dmenu -l 10 -p" #For dmenu with case-insensitive patch
+# menu="rofi -dmenu -p"
+menu="tofi --prompt-text"

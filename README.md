@@ -1,33 +1,32 @@
 # local-arch-wiki
 
-An offline version of [arch linux wiki](https://wiki.archlinux.org/) inspired from [dm-wiki](https://gitlab.com/dwt1/dmscripts/-/blob/master/scripts/dm-wiki).
+A convenient wrapper for arch-wiki-docs, enabling effortless searching and access to the offline Arch Wiki.
+
+# Index
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Uninstallation](#uninstallation)
 
 # Dependencies
 
 - [arch-wiki-docs](https://archlinux.org/packages/community/any/arch-wiki-docs/)
-- [dmenu](https://tools.suckless.org/dmenu/) or [rofi](https://github.com/davatorium/rofi)
-- a web browser
+- A menu such as [dmenu](https://tools.suckless.org/dmenu/), [rofi](https://github.com/davatorium/rofi), or [tofi](https://github.com/philj56/tofi). Configure Accordingly in the `config` file.
+- A web browser. Configure Accordingly in the `config` file.
 - find
-- cut 
+- cut
 - sed
 - sort
 
 ### Optional Dependencies
 
-- xdg-utils
-- libnotify
+- libnotify (For notification support.)
 
-# Installation and Usage
+# Installation
 
-## In arch based distributions.
-
-Use your favourite aur helper. Eg: yay
-```
-yay -S local-arch-wiki
-```
 ## From Source
 
-1. Install all the required dependencies according to the distribution you use.
+1. Install all the required [dependencies](#dependencies) according to the distribution you use.
 2. Install [local-arch-wiki](local-arch-wiki) in your system.
 
 ```
@@ -36,8 +35,11 @@ chmod +x local-arch-wiki
 sudo mv local-arch-wiki /usr/local/bin/
 ```
 
+# Configuration
+local-arch-wiki will by default create a config file at `$HOME/.config/local-arch-wiki/config` on first run. This file contains options to configure your wiki directory, browser and menu. Firefox is used as the web browser and tofi is used as menu by default.
+
 # Uninstallation
-1. Remove all the [dependencies](#dependencies) that you don't require (Be careful other packages may need these dependencies).
+1. Remove the installed [dependencies](#dependencies). (Be careful other packages may need these dependencies).
 2. Uninstall [local-arch-wiki](local-arch-wiki) from your system.
 
 ```

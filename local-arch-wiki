@@ -1,48 +1,65 @@
 #!/usr/bin/env bash
 
-# Dependencies: arch-wiki-docs, dmenu or rofi and a browser
-
+# Determine the config directory
+if [ -n "$XDG_CONFIG_HOME" ]; then
+    config_file_dir="$XDG_CONFIG_HOME"/local-arch-wiki
+else
+    config_file_dir="$HOME"/.config/local-arch-wiki
+fi
+config_file=${config_file_dir}/config
 wikidir="/usr/share/doc/arch-wiki/html/en/"
-wikidocs="$(find ${wikidir} -iname "*.html")"
+menu="tofi --prompt-text"
+browser="firefox"
 
-checkBrowser() {
-    xdgbrowsercheck="$(xdg-settings get default-web-browser)"
-    
-    if [ -n "$BROWSER" ]; then
-        browser="$BROWSER"
-    elif [ -n "$xdgbrowsercheck" ]; then
-        browser="$xdgbrowsercheck"
-        xdg-mime default "$browser" text/html
-        browser="xdg-open"
-    elif command -v sensible-browser; then
-        browser="sensible-browser"
-    elif command -v x-www-browser; then
-        browser="x-www-browser"
-    else
-        echo "Could not detect the web browser to use. Please Install one."
-        notify-send "NO browser detected." "Please Install one."
-        exit 1
-    fi
-}
+if [[ -f "$config_file" ]]; then
+    # shellcheck source=/dev/null
+    source "${config_file}"
+    echo "Config: Sourced user config. (${config_file})"
+else
+    mkdir -p "$config_file_dir"
+    touch "$config_file"
+
+    cat <<EOF > "$config_file"
+## Dependencies: arch-wiki-docs, a menu such as dmenu, rofi, tofi,... and a web browser.
+
+## This is the directory where arch wiki's offline html files from package arch-wiki-docs exists.
+## By default, english wiki page is selected. However other languages are available.
+## Check directory /usr/share/doc/arch-wiki/html/ for other languages and configure accordingly. 
+wikidir="/usr/share/doc/arch-wiki/html/en/"
+
+## Your favourite web browser to open wiki pages.
+browser="firefox"
+
+## Your menu of choice
+# menu="dmenu -i -l 10 -p" 
+# menu="dmenu -l 10 -p" #For dmenu with case-insensitive patch
+# menu="rofi -dmenu -p"
+menu="tofi --prompt-text"
+EOF
+    # shellcheck source=/dev/null
+    source "${config_file}"
+    echo "Config: Created and Sourced user config. (${config_file})"
+fi
 
 checkDependencies() {
-    if [ ! -d $wikidir ]; then
-        echo "Dependency error, please install arch-wiki-docs."
-        notify-send "Dependency error, please install arch-wiki-docs."
+    if [[ ! -d "$wikidir" ]]; then
+        echo "Dependency error, please install arch-wiki-docs or configure wiki dir accordingly."
+        notify-send "Dependency error!" "Please install arch-wiki-docs or configure wiki directory accordingly in the config file."
+        exit 1
+    else
+        wikidocs="$(find ${wikidir} -iname "*.html")"
+    fi
+
+    menu_command=$(echo "$menu" | awk '{print $1}')
+    if ! type -P "$menu_command" &>/dev/null; then
+        echo "Error: ${menu_command} not found. Please install it or configure accordingly in config."
+        notify-send "Error: ${menu_command} not found." "Please install it or configure accordingly in the config file."
         exit 1
     fi
 
-    if type -P dmenu &>/dev/null; then
-        if echo menu | dmenu -i &>/dev/null; then
-            menu="dmenu -i -l 10 -p"
-        else
-            menu="dmenu -l 10 -p "
-        fi
-    elif type -P rofi &>/dev/null; then
-        menu="rofi -dmenu -p"
-    else
-        echo "Dependency error, please install dmenu or rofi."
-        notify-send "Dependency error, please install dmenu or rofi."
+    if ! type -P "$browser" &>/dev/null; then
+        echo "Error: ${browser} not found. Please install it or configure accordingly in config."
+        notify-send "Error: ${browser} not found." "Please install it or configure accordingly in the config file."
         exit 1
     fi
 }
@@ -61,6 +78,5 @@ main(){
     fi
 }
 
-checkBrowser
 checkDependencies
 main "$@"
