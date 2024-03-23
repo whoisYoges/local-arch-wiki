@@ -6,6 +6,7 @@ checkConfigVariable() {
     if [ -z "${!variable}" ] || [[ "${!variable}" =~ ^[[:space:]]*$ ]]; then
         echo "$variable is not defined or is configured to be empty in the config file."
         notify-send "Error!" "Undefined or empty $variable in the config file."
+        exit 1
     fi
 }
 

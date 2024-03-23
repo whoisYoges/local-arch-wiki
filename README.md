@@ -24,6 +24,11 @@ A convenient wrapper for arch-wiki-docs, enabling effortless searching and acces
 
 # Installation
 
+## From AUR (Arch User Repository)
+```
+yay -Sy local-arch-wiki
+```
+
 ## From Source
 
 1. Install all the required [dependencies](#dependencies) according to the distribution you use.
